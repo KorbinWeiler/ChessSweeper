@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { ChessBoard } from '../Model/ChessBoard';
 import { Pawn } from '../Model/Pieces/Pawn';
+import { ChessTile } from '../Model/ChessTile';
 import { Rook } from '../Model/Pieces/Rook';
 import { Knight } from '../Model/Pieces/Knight';
 import { Bishop } from '../Model/Pieces/Bishop';
