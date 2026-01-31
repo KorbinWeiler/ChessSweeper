@@ -12,7 +12,7 @@ class ChessPiece{
     }
 
     calculateMoves(currentX: number, currentY: number): [number, number][]{
-        
+        return [];
     }
 }
 

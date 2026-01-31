@@ -7,17 +7,15 @@ class Pawn extends ChessPiece{
         super([1], color);
     }
 
-    calculateMoves(currentX: number, currentY: number): [number, number][]{
+    override calculateMoves(currentX: number, currentY: number): [number, number][]{
         const moves: [number, number][] = [];
-        let direction = 1; // Assuming pawns move "up" the board
-        if (this.color === "black"){
-            direction = -1;
-        }
-        // Standard one-square move
-        moves.push([currentX, currentY + direction]);
+        // Pawns move along the X axis (rows). White moves toward lower row indexes, black toward higher.
+        const direction = this.color === 'white' ? -1 : 1;
+        // Standard one-square move forward
+        moves.push([currentX + direction, currentY]);
         if (!this.hasMoved){
             // Two-square move on first move
-            moves.push([currentX, currentY + 2 * direction]);
+            moves.push([currentX + 2 * direction, currentY]);
         }
         return moves;
     }

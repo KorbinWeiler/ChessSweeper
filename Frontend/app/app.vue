@@ -1,10 +1,10 @@
 <template>
   <v-app>
     <v-app-bar app color="primary" dark>
-      <v-toolbar-title>My Nuxt App</v-toolbar-title>
-      <NuxtLink to="/" class="ml-5 mr-3" exact>
+      <v-toolbar-title>ChessSweeper</v-toolbar-title>
+      <v-btn to="/" class="ml-5 mr-3" text>
         Home
-      </NuxtLink>
+      </v-btn>
     </v-app-bar>
     <v-main>
       <NuxtPage/>
