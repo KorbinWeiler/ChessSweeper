@@ -1,9 +1,11 @@
 <template>
   <v-app>
-    <v-container class="pa-5" fluid fill-height>
+    <v-card 
+        class="mx-auto pa-10">
       <v-row align="center" justify="center" class="fill-height">
         <v-col cols="auto" class="text-center content">
           <v-btn to="/setupgame" color="primary" large>Start a new Game</v-btn>
+          <v-btn to="/stats" color="secondary" large class="ml-4">View Stats</v-btn>
           <h1>The History of Chess</h1>
           <p>
             The game of chess has a rich history that dates back over a thousand years. The earliest known form of chess cam from the 7th century CE
@@ -30,9 +32,31 @@
           </p>
         </v-col>
       </v-row>
-    </v-container>
+    </v-card>
   </v-app>
 </template>
+
+<script setup>
+import axios from 'axios'
+
+async function viewStats() {
+  try {
+    const response = await axios.get('https://localhost:7144/stats')
+    const data = response.data
+    let statsMessage = `Total Explosions: ${data.totalExplosions}\n` +
+                       `White Pieces Explosioned: ${data.whiteExplosions}\n` +
+                       `Black Pieces Explosioned: ${data.blackExplosions}\n` +
+                       `Explosions by Piece Type:\n`;
+    (data.numberExplodedByPiece || []).forEach(item => {
+      statsMessage += `  ${item.pieceType}: ${item.count}\n`;
+    });
+    alert(statsMessage);
+  } catch (error) {
+    console.error('Error fetching stats:', error);
+    alert('Failed to fetch stats. Please try again later.');
+  }
+}
+</script>
 
 <style scoped>
 .content {

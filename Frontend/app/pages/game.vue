@@ -16,6 +16,6 @@ import Chessboard from '../components/chessboard.vue';
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 2rem;
+  padding-top: 2rem;
 }
 </style>

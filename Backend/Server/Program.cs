@@ -5,6 +5,16 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllers();
+// Allow cross-origin requests during development from local frontends
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("DevCors", policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
 
 // Register EF Core DbContext with SQL Server
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -37,6 +47,9 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
+// Enable CORS - must be before MapControllers/Authorization
+app.UseCors("DevCors");
+
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
@@ -44,3 +57,5 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+Console.WriteLine("Server is running..." + app.Environment.EnvironmentName);

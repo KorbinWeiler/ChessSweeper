@@ -37,4 +37,9 @@ export default defineNuxtConfig({
     vuetify: {
 
     },
+  runtimeConfig: {
+    public: {
+      SERVER_URL: 'https://localhost:7144'
+    }
+  }
 })

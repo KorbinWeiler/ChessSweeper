@@ -37,10 +37,8 @@
             <v-chip :color="currentTurn === 'white' ? 'grey lighten-4' : 'grey darken-3'" text-color="black">
               {{ currentTurn === 'white' ? '⚪ White' : '⚫ Black' }}
             </v-chip>
+            <div style="margin-left:12px;" v-if="gameOver">Game Over: {{ winner }} wins</div>
           </v-card-title>
-          <v-card-text>
-            <div v-if="selectedTile">Selected: ({{ selectedTile.x }}, {{ selectedTile.y }})</div>
-          </v-card-text>
           <v-card-actions>
             <v-btn color="primary" @click="resetBoard">Reset Board</v-btn>
           </v-card-actions>
@@ -61,12 +59,18 @@ import { Knight } from '../../Model/Pieces/Knight';
 import { Bishop } from '../../Model/Pieces/Bishop';
 import { Queen } from '../../Model/Pieces/Queen';
 import { King } from '../../Model/Pieces/King';
+import axios from 'axios';
+
+const config = useRuntimeConfig();
+
 
 const chessBoard = ref<ChessBoard | null>(null);
 const board = ref<ChessTile[][]>([]);
 const selectedTile = ref<ChessTile | null>(null);
 const validMoves = ref<[number, number][]>([]);
 const currentTurn = ref<'white' | 'black'>('white');
+const gameOver = ref<boolean>(false);
+const winner = ref<'white' | 'black' | null>(null);
 
 onMounted(() => {
   initializeBoard();
@@ -97,6 +101,7 @@ const isValidMove = (row: number, col: number): boolean => {
 };
 
 const handleTileClick = (row: number, col: number) => {
+  if (gameOver.value) return;
   const rowArr = board.value[row];
   if (!rowArr) return;
   const clickedTile = rowArr[col];
@@ -162,12 +167,41 @@ const calculateValidMoves = (tile: ChessTile): [number, number][] => {
       return false;
     }
 
+    // Knights can jump over pieces, so no path-check needed
+    if (piece instanceof Knight) {
+      return !targetTile.piece || targetTile.piece.color !== piece.color;
+    }
+
+    // For sliding pieces (rook, bishop, queen) and other multi-step moves,
+    // ensure there are no blocking pieces between source and target.
+    const dx = x - tile.x;
+    const dy = y - tile.y;
+    const steps = Math.max(Math.abs(dx), Math.abs(dy));
+    const stepX = dx === 0 ? 0 : dx / steps;
+    const stepY = dy === 0 ? 0 : dy / steps;
+
+    // Check intermediate squares (exclude destination)
+    for (let s = 1; s < steps; s++) {
+      const checkX = tile.x + stepX * s;
+      const checkY = tile.y + stepY * s;
+      const rowArrCheck = board.value[checkX];
+      if (!rowArrCheck) return false;
+      const midTile = rowArrCheck[checkY];
+      if (!midTile) return false;
+      if (midTile.piece) return false;
+    }
+
     // Default: can't move to a tile occupied by own piece
     return !targetTile.piece || targetTile.piece.color !== piece.color;
   });
 };
 
 const movePiece = (fromTile: ChessTile, toTile: ChessTile) => {
+  if (!fromTile.piece) return;
+
+  // capture detection
+  const capturedPiece = toTile.piece;
+
   // Move the piece
   toTile.piece = fromTile.piece;
   fromTile.piece = null;
@@ -180,13 +214,37 @@ const movePiece = (fromTile: ChessTile, toTile: ChessTile) => {
   if (toTile.bomb) {
     const detonated = toTile.bomb.detonate();
     if (detonated) {
+      const explodedPiece = toTile.piece;
+      console.log(`Bomb detonated at ${explodedPiece ? explodedPiece.constructor.name : 'unknown piece'}!`);
+      axios.post(`${config.public.SERVER_URL}/newExplosion`, {
+        timestamp: new Date().toISOString(),
+        pieceType: explodedPiece ? explodedPiece.constructor.name : null,
+        color: explodedPiece ? explodedPiece.color : null
+      }).catch(error => {
+        console.error('Failed to send explosion data:', error);
+      });
+      // If the exploded piece was a King, end the game
+      if (explodedPiece instanceof King) {
+        gameOver.value = true;
+        winner.value = explodedPiece.color === 'white' ? 'black' : 'white';
+      }
       //remove piece from toTile
       toTile.piece = null;
+
     }
   }
+
+  // If we captured a piece via a normal move, check for king capture
+  if (capturedPiece && capturedPiece instanceof King) {
+    gameOver.value = true;
+    // winner is the color of the mover
+    winner.value = toTile.piece ? toTile.piece.color : null;
+  }
   
-  // Switch turns
-  currentTurn.value = currentTurn.value === 'white' ? 'black' : 'white';
+  // Switch turns only if game not over
+  if (!gameOver.value) {
+    currentTurn.value = currentTurn.value === 'white' ? 'black' : 'white';
+  }
 };
 
 const getPieceSymbol = (piece: ChessPiece): string => {
@@ -210,8 +268,6 @@ const getPieceSymbol = (piece: ChessPiece): string => {
   align-items: center;
   gap: 2rem;
   padding: 2rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  min-height: 100vh;
 }
 
 .chessboard {
@@ -309,7 +365,6 @@ const getPieceSymbol = (piece: ChessPiece): string => {
   border-radius: 12px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
   text-align: center;
-  min-width: 300px;
 }
 
 .game-info h3 {
@@ -321,7 +376,6 @@ const getPieceSymbol = (piece: ChessPiece): string => {
 .reset-button {
   margin-top: 1rem;
   padding: 0.75rem 2rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   border: none;
   border-radius: 8px;
