@@ -26,7 +26,7 @@ import { useRouter } from 'vue-router'
 
 const radios = ref('teleport')
 const router = useRouter()
-const startGame = () => router.push('/game/1')
+const startGame = () => router.push('/game')
 </script>
 
 <style scoped>

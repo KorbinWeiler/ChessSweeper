@@ -13,6 +13,9 @@ class Pawn extends ChessPiece{
         const direction = this.color === 'white' ? -1 : 1;
         // Standard one-square move forward
         moves.push([currentX + direction, currentY]);
+        // Diagonal captures (one forward, one sideways) - validity checked by board logic
+        moves.push([currentX + direction, currentY + 1]);
+        moves.push([currentX + direction, currentY - 1]);
         if (!this.hasMoved){
             // Two-square move on first move
             moves.push([currentX + 2 * direction, currentY]);

@@ -8,7 +8,7 @@
 </template>
 
 <script setup lang="ts">
-import Chessboard from '../../components/chessboard.vue';
+import Chessboard from '../components/chessboard.vue';
 </script>
 
 <style scoped>
