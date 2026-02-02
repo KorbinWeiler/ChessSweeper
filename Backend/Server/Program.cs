@@ -14,6 +14,12 @@ builder.Services.AddCors(options =>
               .AllowAnyHeader()
               .AllowAnyMethod();
     });
+    options.AddPolicy("AllowStaticWebsite", policy =>
+    {
+        policy.WithOrigins("https://thankful-plant-08ce5741e.1.azurestaticapps.net/")
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
 });
 
 // Register EF Core DbContext with SQL Server
