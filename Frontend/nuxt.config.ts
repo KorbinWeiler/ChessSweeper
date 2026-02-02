@@ -39,7 +39,7 @@ export default defineNuxtConfig({
     },
   runtimeConfig: {
     public: {
-      SERVER_URL: 'https://localhost:7144'
+      SERVER_URL: 'https://chesssweeperserver-gnhgh5htaqh2ewd8.westus3-01.azurewebsites.net/'
     }
   }
 })
