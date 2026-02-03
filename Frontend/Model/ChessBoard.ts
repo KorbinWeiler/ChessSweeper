@@ -17,6 +17,7 @@ export class ChessBoard {
         this.InitializationBoardSize();
         this.InitializePieces();
         this.InitializeBombs(8);
+        this.FindBombs();
     }
 
     InitializationBoardSize(){
@@ -79,15 +80,15 @@ export class ChessBoard {
 
     FindBombs(): void {
         this.board.forEach(row => {
-            let bombCount = 0;
             row.forEach(tile => {
+                let bombCount = 0;
                 for (let dx = -1; dx <= 1; dx++) {
                     for (let dy = -1; dy <= 1; dy++) {
                         if (dx === 0 && dy === 0) continue; // Skip the tile itself
-                        const newX = tile.x + dx;
-                        const newY = tile.y + dy;
-                        if (newX >= 0 && newX < 8 && newY >= 0 && newY < 8) {
-                            if (this.board[newY]![newX]!.bomb) {
+                        const newRow = tile.x + dx; // row index
+                        const newCol = tile.y + dy; // column index
+                        if (newRow >= 0 && newRow < 8 && newCol >= 0 && newCol < 8) {
+                            if (this.board[newRow]![newCol]!.bomb && this.board[newRow]![newCol]!.bomb!.isActive) {
                                 bombCount++;
                             }
                         }

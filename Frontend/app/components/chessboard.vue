@@ -25,9 +25,9 @@
               </div>
 
 
-              <div v-if="tile.bomb && !tile.bomb.isActive && showBombIndicator" class="bomb-indicator">💣</div>
+              <div v-if="tile.bomb && !tile.bomb.isActive" class="bomb-indicator">💣</div>
 
-              <div v-if="tile.vicinityBombs > 0 && !tile.bomb" class="tile-value">{{ tile.vicinityBombs }}</div>
+              <div v-if="tile.vicinityBombs > 0 && tile.piece && showBombIndicator" class="tile-value">{{ tile.vicinityBombs }}</div>
 
               <div v-if="isValidMove(rowIndex, colIndex) && !tile.piece" class="move-dot"></div>
             </div>
@@ -43,7 +43,7 @@
             </v-chip>
             <div style="margin-left:12px;" v-if="gameOver">Game Over: {{ winner }} wins</div>
           </v-card-title>
-          <v-card-actions>
+          <v-card-actions style="display:flex;align-items:center;gap:12px;">
             <v-btn color="primary" @click="resetBoard">Reset Board</v-btn>
           </v-card-actions>
         </v-card>
@@ -73,9 +73,9 @@ interface Props {
 }
 const props = defineProps<Props>();
 const moveMode = props.moveMode ?? 'teleport';
-const showBombIndicator = props.showBombIndicator ?? true;
+const showBombIndicator = ref(props.showBombIndicator ?? false);
 
-console.log('Chessboard props:', { moveMode, showBombIndicator });
+console.log('Chessboard props:', { moveMode, showBombIndicator: showBombIndicator.value });
 
 
 const chessBoard = ref<ChessBoard | null>(null);
@@ -126,7 +126,6 @@ const handleTileClick = (row: number, col: number) => {
     movePiece(selectedTile.value!, clickedTile);
     selectedTile.value = null;
     validMoves.value = [];
-    chessBoard.value!.updateBombIndicators();
     return;
   }
 
@@ -244,6 +243,7 @@ const movePiece = (fromTile: ChessTile, toTile: ChessTile) => {
       }).catch(error => {
         console.error('Failed to send explosion data:', error);
       });
+      chessBoard.value?.FindBombs();
       // If the exploded piece was a King, end the game
       if (explodedPiece instanceof King) {
         gameOver.value = true;
@@ -357,10 +357,10 @@ const getPieceSymbol = (piece: ChessPiece): string => {
 
 .bomb-indicator {
   position: absolute;
-  top: 5px;
-  right: 5px;
+  top: 6px;
+  right: 6px;
   font-size: 20px;
-  animation: pulse 1s infinite;
+  color: #e53e3e;
 }
 
 .tile-value {
@@ -384,14 +384,7 @@ const getPieceSymbol = (piece: ChessPiece): string => {
   pointer-events: none;
 }
 
-@keyframes pulse {
-  0%, 100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.2);
-  }
-}
+
 
 .game-info {
   background: white;
