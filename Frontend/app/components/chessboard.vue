@@ -12,6 +12,7 @@
               v-for="(tile, colIndex) in row"
               :key="rowIndex + '-' + colIndex"
               class="chess-tile"
+              :title="tile.piece ? (tile.piece.constructor.name + ' (' + tile.piece.color + ')') : (tile.vicinityBombs ? 'Nearby bombs: ' + tile.vicinityBombs : '')"
               :class="[
                 getTileColor(rowIndex, colIndex),
                 { 'selected': isSelected(rowIndex, colIndex) },
@@ -23,7 +24,10 @@
                 {{ getPieceSymbol(tile.piece) }}
               </div>
 
-              <div v-if="tile.bomb && !tile.bomb.isActive" class="bomb-indicator">💣</div>
+
+              <div v-if="tile.bomb && !tile.bomb.isActive && showBombIndicator" class="bomb-indicator">💣</div>
+
+              <div v-if="tile.vicinityBombs > 0 && !tile.bomb" class="tile-value">{{ tile.vicinityBombs }}</div>
 
               <div v-if="isValidMove(rowIndex, colIndex) && !tile.piece" class="move-dot"></div>
             </div>
@@ -62,6 +66,16 @@ import { King } from '../../Model/Pieces/King';
 import axios from 'axios';
 
 const config = useRuntimeConfig();
+
+interface Props {
+  moveMode?: string;
+  showBombIndicator?: boolean;
+}
+const props = defineProps<Props>();
+const moveMode = props.moveMode ?? 'teleport';
+const showBombIndicator = props.showBombIndicator ?? true;
+
+console.log('Chessboard props:', { moveMode, showBombIndicator });
 
 
 const chessBoard = ref<ChessBoard | null>(null);
@@ -112,6 +126,7 @@ const handleTileClick = (row: number, col: number) => {
     movePiece(selectedTile.value!, clickedTile);
     selectedTile.value = null;
     validMoves.value = [];
+    chessBoard.value!.updateBombIndicators();
     return;
   }
 
@@ -173,14 +188,20 @@ const calculateValidMoves = (tile: ChessTile): [number, number][] => {
     }
 
     // For sliding pieces (rook, bishop, queen) and other multi-step moves,
-    // ensure there are no blocking pieces between source and target.
+    // ensure there are no blocking pieces between source and target when
+    // using "slide" mode. In "teleport" mode pieces can ignore blockers.
     const dx = x - tile.x;
     const dy = y - tile.y;
     const steps = Math.max(Math.abs(dx), Math.abs(dy));
     const stepX = dx === 0 ? 0 : dx / steps;
     const stepY = dy === 0 ? 0 : dy / steps;
 
-    // Check intermediate squares (exclude destination)
+    if (moveMode === 'teleport') {
+      // teleport: ignore intermediate blockers, only disallow landing on own piece
+      return !targetTile.piece || targetTile.piece.color !== piece.color;
+    }
+
+    // slide mode: check intermediate squares (exclude destination)
     for (let s = 1; s < steps; s++) {
       const checkX = tile.x + stepX * s;
       const checkY = tile.y + stepY * s;
@@ -340,6 +361,19 @@ const getPieceSymbol = (piece: ChessPiece): string => {
   right: 5px;
   font-size: 20px;
   animation: pulse 1s infinite;
+}
+
+.tile-value {
+  position: absolute;
+  bottom: 6px;
+  left: 6px;
+  background: rgba(0,0,0,0.6);
+  color: white;
+  font-size: 14px;
+  padding: 2px 6px;
+  border-radius: 8px;
+  min-width: 18px;
+  text-align: center;
 }
 
 .move-dot {

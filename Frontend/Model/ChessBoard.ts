@@ -76,4 +76,25 @@ export class ChessBoard {
             }
         }
     }
+
+    FindBombs(): void {
+        this.board.forEach(row => {
+            let bombCount = 0;
+            row.forEach(tile => {
+                for (let dx = -1; dx <= 1; dx++) {
+                    for (let dy = -1; dy <= 1; dy++) {
+                        if (dx === 0 && dy === 0) continue; // Skip the tile itself
+                        const newX = tile.x + dx;
+                        const newY = tile.y + dy;
+                        if (newX >= 0 && newX < 8 && newY >= 0 && newY < 8) {
+                            if (this.board[newY]![newX]!.bomb) {
+                                bombCount++;
+                            }
+                        }
+                    }
+                }
+                tile.vicinityBombs = bombCount;
+            });
+        });
+    }
 }
