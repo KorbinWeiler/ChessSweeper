@@ -27,7 +27,7 @@ import { ref } from 'vue'
 import { useRouter } from '#app'
 
 const radios = ref('teleport')
-const showBomb = ref(true)
+const showBomb = ref(false)
 const bombCount = ref(6)
 const router = useRouter()
 const startGame = () => router.push({ path: '/game', query: { moveMode: radios.value, showBombIndicator: showBomb.value ? 'true' : 'false', bombCount: Math.floor(bombCount.value) } })
