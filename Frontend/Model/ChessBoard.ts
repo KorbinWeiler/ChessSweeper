@@ -12,11 +12,11 @@ export class ChessBoard {
     // Class implementation goes here
     board: ChessTile[][] = [];
 
-    constructor() {
+    constructor(numberOfBombs: number = 8) {
         // Initialization code goes here
         this.InitializationBoardSize();
         this.InitializePieces();
-        this.InitializeBombs(8);
+        this.InitializeBombs(numberOfBombs);
         this.FindBombs();
     }
 

@@ -70,10 +70,12 @@ const config = useRuntimeConfig();
 interface Props {
   moveMode?: string;
   showBombIndicator?: boolean;
+  bombCount?: number;
 }
 const props = defineProps<Props>();
 const moveMode = props.moveMode ?? 'teleport';
 const showBombIndicator = ref(props.showBombIndicator ?? false);
+const bombCount = props.bombCount ?? 6;
 
 console.log('Chessboard props:', { moveMode, showBombIndicator: showBombIndicator.value });
 
@@ -87,11 +89,11 @@ const gameOver = ref<boolean>(false);
 const winner = ref<'white' | 'black' | null>(null);
 
 onMounted(() => {
-  initializeBoard();
+  initializeBoard(bombCount);
 });
 
-const initializeBoard = () => {
-  chessBoard.value = new ChessBoard();
+const initializeBoard = (bombCount: number) => {
+  chessBoard.value = new ChessBoard(bombCount);
   board.value = chessBoard.value.board;
   selectedTile.value = null;
   validMoves.value = [];
@@ -99,7 +101,7 @@ const initializeBoard = () => {
 };
 
 const resetBoard = () => {
-  initializeBoard();
+  initializeBoard(bombCount);
 };
 
 const getTileColor = (row: number, col: number): string => {

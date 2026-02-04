@@ -9,6 +9,9 @@
                 <v-radio label="Pieces Teleport" value="teleport" />
                 <v-radio label="Pieces Slide" value="slide" />
             </v-radio-group>
+            <v-label>Number of Bombs: {{ Math.floor(bombCount) }}</v-label>
+            <v-slider v-model="bombCount" :min="6" :max="14">
+            </v-slider>
             <v-btn @click="startGame" color="primary" large>
                 start game
             </v-btn>
@@ -25,8 +28,9 @@ import { useRouter } from '#app'
 
 const radios = ref('teleport')
 const showBomb = ref(true)
+const bombCount = ref(6)
 const router = useRouter()
-const startGame = () => router.push({ path: '/game', query: { moveMode: radios.value, showBombIndicator: showBomb.value ? 'true' : 'false' } })
+const startGame = () => router.push({ path: '/game', query: { moveMode: radios.value, showBombIndicator: showBomb.value ? 'true' : 'false', bombCount: Math.floor(bombCount.value) } })
 </script>
 
 <style scoped>

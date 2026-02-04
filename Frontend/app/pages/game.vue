@@ -2,7 +2,7 @@
   <v-app>
     <div class="page-container">
       <h1>Game</h1>
-      <Chessboard :moveMode="moveMode" :showBombIndicator="showBombIndicator" />
+      <Chessboard :moveMode="moveMode" :showBombIndicator="showBombIndicator" :bombCount="bombCount" />
     </div>
   </v-app>
 </template>
@@ -14,6 +14,7 @@ import { useRoute } from 'vue-router';
 const route = useRoute();
 const moveMode = route.query.moveMode ? String(route.query.moveMode) : 'teleport';
 const showBombIndicator = route.query.showBombIndicator ? String(route.query.showBombIndicator) === 'true' : false;
+const bombCount = route.query.bombCount ? Number(route.query.bombCount) : 6;
 </script>
 
 <style scoped>
