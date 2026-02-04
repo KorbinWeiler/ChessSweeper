@@ -88,7 +88,7 @@ interface Props {
   bombCount?: number;
 }
 const props = defineProps<Props>();
-const moveMode = props.moveMode ?? 'teleport';
+const moveMode = computed(() => props.moveMode ?? 'teleport');
 const showBombIndicator = ref(props.showBombIndicator ?? false);
 const bombCount = props.bombCount ?? 6;
 
@@ -217,15 +217,27 @@ const calculateValidMoves = (tile: ChessTile): [number, number][] => {
 
     // For sliding pieces (rook, bishop, queen) and other multi-step moves,
     // ensure there are no blocking pieces between source and target when
-    // using "slide" mode. In "teleport" mode pieces can ignore blockers.
+    // using "slide" mode. In "teleport" mode pieces can ignore blockers except pawns.
     const dx = x - tile.x;
     const dy = y - tile.y;
     const steps = Math.max(Math.abs(dx), Math.abs(dy));
     const stepX = Math.sign(dx);
     const stepY = Math.sign(dy);
 
-    if (moveMode === 'teleport') {
-      // teleport: ignore intermediate blockers, only disallow landing on own piece
+    if (moveMode.value === 'teleport') {
+      // teleport: ignore intermediate blockers except pawns
+      // Check intermediate squares for pawns
+      for (let s = 1; s < steps; s++) {
+        const checkX = tile.x + stepX * s;
+        const checkY = tile.y + stepY * s;
+        const rowArrCheck = board.value[checkX];
+        if (!rowArrCheck) return false;
+        const midTile = rowArrCheck[checkY];
+        if (!midTile) return false;
+        // Pawns block teleportation
+        if (midTile.piece instanceof Pawn) return false;
+      }
+      // Can't land on own piece
       return !targetTile.piece || targetTile.piece.color !== piece.color;
     }
 
@@ -395,7 +407,7 @@ const isInPath = (r: number, c: number): boolean => {
 
 const previewPathTo = (toX: number, toY: number) => {
   // Only show path in slide mode
-  if (moveMode !== 'slide') {
+  if (moveMode.value !== 'slide') {
     path.value = [];
     allPaths.value = [];
     hoveredDestination.value = null;
@@ -425,7 +437,7 @@ const previewPathTo = (toX: number, toY: number) => {
   
   allPaths.value = findAllPaths(fromX, fromY, toX, toY);
   if (allPaths.value.length > 0) {
-    path.value = allPaths.value[currentPathIndex.value % allPaths.value.length];
+    path.value = allPaths.value[currentPathIndex.value % allPaths.value.length]!;
     console.log(`Path ${currentPathIndex.value + 1}/${allPaths.value.length} from`, [fromX, fromY], 'to', [toX, toY], ':', path.value);
   }
 };
@@ -433,7 +445,7 @@ const previewPathTo = (toX: number, toY: number) => {
 const cyclePath = () => {
   if (allPaths.value.length > 1 && hoveredDestination.value) {
     currentPathIndex.value = (currentPathIndex.value + 1) % allPaths.value.length;
-    path.value = allPaths.value[currentPathIndex.value];
+    path.value = allPaths.value[currentPathIndex.value]!;
     console.log(`Switched to path ${currentPathIndex.value + 1}/${allPaths.value.length}:`, path.value);
   }
 };
@@ -452,7 +464,7 @@ const movePiece = (fromTile: ChessTile, toTile: ChessTile) => {
   const capturedPiece = toTile.piece;
   
   // In slide mode, check for bombs along the path
-  if (moveMode === 'slide' && path.value.length > 0) {
+  if (moveMode.value === 'slide' && path.value.length > 0) {
     // Check each tile in the path for bombs
     for (const [pathX, pathY] of path.value) {
       const pathTile = board.value[pathX]?.[pathY];
