@@ -12,7 +12,7 @@
               v-for="(tile, colIndex) in row"
               :key="rowIndex + '-' + colIndex"
               class="chess-tile"
-              :title="tile.piece ? (tile.piece.constructor.name + ' (' + tile.piece.color + ')') : (tile.vicinityBombs ? 'Nearby bombs: ' + tile.vicinityBombs : '')"
+              :title="tile.piece ? (tile.piece.constructor.name + ' (' + tile.piece.color + ')') : ''"
               :class="[
                 getTileColor(rowIndex, colIndex),
                 { 'selected': isSelected(rowIndex, colIndex) },
