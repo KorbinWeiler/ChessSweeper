@@ -1,6 +1,7 @@
 class ChessPiece{
     movePair: number[];
     color: "white" | "black" = "white";
+    type: string = "ChessPiece";
 
     constructor(movePair: number[], color: "white" | "black" = "white"){
         this.movePair = movePair;

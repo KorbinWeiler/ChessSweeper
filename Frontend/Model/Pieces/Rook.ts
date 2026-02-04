@@ -2,6 +2,7 @@ import { ChessPiece } from "../ChessPiece";
 
 class Rook extends ChessPiece {
     hasMoved: boolean = false;
+    override type: string = "Rook";
 
     constructor(color: 'white' | 'black' = "white"){
         super([1, 0], color);

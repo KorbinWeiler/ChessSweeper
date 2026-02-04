@@ -1,6 +1,8 @@
 import { ChessPiece } from "../ChessPiece";
 
 class Knight extends ChessPiece {
+    override type: string = "Knight";
+
     constructor(color: 'white' | 'black' = "white"){
         super([2, 1], color);
     }

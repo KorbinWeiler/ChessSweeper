@@ -12,7 +12,7 @@
               v-for="(tile, colIndex) in row"
               :key="rowIndex + '-' + colIndex"
               class="chess-tile"
-              :title="tile.piece ? (tile.piece.constructor.name + ' (' + tile.piece.color + ')') : ''"
+              :title="tile.piece ? (tile.piece.type + ' (' + tile.piece.color + ')') : ''"
               :class="[
                 getTileColor(rowIndex, colIndex),
                 { 'selected': isSelected(rowIndex, colIndex) },
@@ -485,7 +485,7 @@ const movePiece = (fromTile: ChessTile, toTile: ChessTile) => {
           console.log(`Bomb detonated along path at [${pathX}, ${pathY}]!`);
           axios.post(`${config.public.SERVER_URL}/newExplosion`, {
             timestamp: new Date().toISOString(),
-            pieceType: movingPiece.constructor.name,
+            pieceType: movingPiece.type,
             color: movingPiece.color
           }).catch(error => {
             console.error('Failed to send explosion data:', error);
@@ -525,10 +525,10 @@ const movePiece = (fromTile: ChessTile, toTile: ChessTile) => {
     const detonated = toTile.bomb.detonate();
     if (detonated) {
       const explodedPiece = toTile.piece;
-      console.log(`Bomb detonated at destination ${explodedPiece ? explodedPiece.constructor.name : 'unknown piece'}!`);
+      console.log(`Bomb detonated at destination ${explodedPiece ? explodedPiece.type : 'unknown piece'}!`);
       axios.post(`${config.public.SERVER_URL}/newExplosion`, {
         timestamp: new Date().toISOString(),
-        pieceType: explodedPiece ? explodedPiece.constructor.name : null,
+        pieceType: explodedPiece ? explodedPiece.type : null,
         color: explodedPiece ? explodedPiece.color : null
       }).catch(error => {
         console.error('Failed to send explosion data:', error);
