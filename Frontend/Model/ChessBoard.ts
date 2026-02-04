@@ -12,11 +12,12 @@ export class ChessBoard {
     // Class implementation goes here
     board: ChessTile[][] = [];
 
-    constructor() {
+    constructor(numberOfBombs: number = 8) {
         // Initialization code goes here
         this.InitializationBoardSize();
         this.InitializePieces();
-        this.InitializeBombs(8);
+        this.InitializeBombs(numberOfBombs);
+        this.FindBombs();
     }
 
     InitializationBoardSize(){
@@ -75,5 +76,26 @@ export class ChessBoard {
                 bombList.push(bombPosition);
             }
         }
+    }
+
+    FindBombs(): void {
+        this.board.forEach(row => {
+            row.forEach(tile => {
+                let bombCount = 0;
+                for (let dx = -1; dx <= 1; dx++) {
+                    for (let dy = -1; dy <= 1; dy++) {
+                        if (dx === 0 && dy === 0) continue; // Skip the tile itself
+                        const newRow = tile.x + dx; // row index
+                        const newCol = tile.y + dy; // column index
+                        if (newRow >= 0 && newRow < 8 && newCol >= 0 && newCol < 8) {
+                            if (this.board[newRow]![newCol]!.bomb && this.board[newRow]![newCol]!.bomb!.isActive) {
+                                bombCount++;
+                            }
+                        }
+                    }
+                }
+                tile.vicinityBombs = bombCount;
+            });
+        });
     }
 }
