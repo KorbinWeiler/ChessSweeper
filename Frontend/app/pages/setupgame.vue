@@ -39,4 +39,12 @@ const startGame = () => router.push({ path: '/game', query: { moveMode: radios.v
   appearance: auto;
   pointer-events: auto;
 }
+
+@media (max-width: 768px) {
+  .v-form {
+    width: 100%;
+    max-width: 350px;
+    padding: 0 1rem;
+  }
+}
 </style>

@@ -1,9 +1,9 @@
 <template>
     <v-app>
         <v-card 
-        class="mx-auto"
+        class="mx-auto stats-card"
         subtitle="Global Game Statistics"
-        width="400">
+        max-width="400">
             <v-row align="center" justify="center" class="fill-height">
                 <v-col cols="auto" class="text-center content">
                     <p>Total Explosions: {{ data.totalExplosions }}</p>
@@ -43,3 +43,16 @@ try {
   console.error('Error fetching stats:', error);
 }
 </script>
+
+<style scoped>
+.stats-card {
+  width: 100%;
+  max-width: 400px;
+}
+
+@media (max-width: 768px) {
+  .stats-card {
+    margin: 0.5rem;
+  }
+}
+</style>

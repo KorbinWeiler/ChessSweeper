@@ -24,4 +24,14 @@ const bombCount = route.query.bombCount ? Number(route.query.bombCount) : 6;
   align-items: center;
   padding-top: 2rem;
 }
+
+@media (max-width: 768px) {
+  .page-container {
+    padding-top: 0.5rem;
+  }
+  .page-container h1 {
+    font-size: 1.5rem;
+    margin: 0.5rem 0;
+  }
+}
 </style>

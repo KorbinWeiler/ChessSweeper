@@ -1,7 +1,7 @@
 <template>
   <v-container class="chessboard-container" fluid>
-    <v-row align="start" justify="center">
-      <v-col cols="auto">
+    <v-row align="start" justify="center" class="board-row">
+      <v-col cols="12" md="auto" class="board-col">
         <v-sheet class="chessboard" elevation="6">
           <div 
             v-for="(row, rowIndex) in board" 
@@ -38,8 +38,8 @@
         </v-sheet>
       </v-col>
 
-      <v-col cols="auto">
-        <v-card class="game-info" elevation="4" style="min-width:260px;">
+      <v-col cols="12" md="auto" class="info-col">
+        <v-card class="game-info" elevation="4">
           <v-card-title style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
             <div style="display:flex;align-items:center;gap:12px;">
               <v-avatar size="36" :color="currentTurn === 'white' ? 'grey lighten-4' : 'grey darken-3'">
@@ -580,28 +580,101 @@ const getPieceSymbol = (piece: ChessPiece): string => {
   padding: 2rem;
 }
 
-.chessboard {
+.board-row {
+  width: 100%;
+}
+
+.board-col,
+.info-col {
   display: flex;
+  justify-content: center;
+}
+
+.board-col {
+  overflow: hidden;
+}
+
+@media (max-width: 768px) {
+  .chessboard-container {
+    padding: 0.25rem;
+    gap: 0.5rem;
+  }
+  .board-col {
+    overflow-x: auto;
+  }
+  .info-col {
+    width: 100%;
+  }
+}
+
+.chessboard {
+  display: inline-flex;
   flex-direction: column;
   border: 4px solid #2d3748;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
   border-radius: 8px;
   overflow: hidden;
+  max-width: 100%;
+}
+
+@media (max-width: 768px) {
+  .chessboard {
+    border: 1px solid #2d3748;
+  }
 }
 
 .chess-row {
   display: flex;
+  flex-shrink: 0;
+  flex-grow: 0;
 }
 
 .chess-tile {
-  width: 80px;
-  height: 80px;
+  width: 55px !important;
+  height: 55px !important;
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
   cursor: pointer;
   transition: all 0.2s ease;
+  flex-shrink: 0;
+  flex-grow: 0;
+}
+
+@media (max-width: 1024px) {
+  .chess-tile {
+    width: 90px !important;
+    height: 90px !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .chess-tile {
+    width: 35px !important;
+    height: 35px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .chess-tile {
+    width: 32px !important;
+    height: 32px !important;
+  }
+}
+
+@media (max-width: 430px) {
+  .chess-tile {
+    width: 50px !important;
+    height: 50px !important;
+  }
+}
+
+@media (max-width: 400px) {
+  .chess-tile {
+    width: 28px !important;
+    height: 28px !important;
+  }
 }
 
 .light-tile {
@@ -633,10 +706,40 @@ const getPieceSymbol = (piece: ChessPiece): string => {
 }
 
 .chess-piece {
-  font-size: 48px;
+  font-size: 36px;
   user-select: none;
   cursor: pointer;
   transition: transform 0.1s ease;
+}
+
+@media (max-width: 1024px) {
+  .chess-piece {
+    font-size: 30px;
+  }
+}
+
+@media (max-width: 768px) {
+  .chess-piece {
+    font-size: 22px;
+  }
+}
+
+@media (max-width: 480px) {
+  .chess-piece {
+    font-size: 20px;
+  }
+}
+
+@media (max-width: 430px) {
+  .chess-piece {
+    font-size: 18px;
+  }
+}
+
+@media (max-width: 400px) {
+  .chess-piece {
+    font-size: 17px;
+  }
 }
 
 .chess-piece:hover {
@@ -653,31 +756,118 @@ const getPieceSymbol = (piece: ChessPiece): string => {
 
 .bomb-indicator {
   position: absolute;
-  top: 6px;
-  right: 6px;
-  font-size: 20px;
+  top: 3px;
+  right: 3px;
+  font-size: 14px;
   color: #e53e3e;
+}
+
+@media (max-width: 1024px) {
+  .bomb-indicator {
+    font-size: 12px;
+    top: 2px;
+    right: 2px;
+  }
+}
+
+@media (max-width: 768px) {
+  .bomb-indicator {
+    top: 1px;
+    right: 1px;
+    font-size: 9px;
+  }
+}
+
+@media (max-width: 480px) {
+  .bomb-indicator {
+    font-size: 8px;
+  }
+}
+
+@media (max-width: 430px) {
+  .bomb-indicator {
+    font-size: 7px;
+  }
 }
 
 .tile-value {
   position: absolute;
-  bottom: 6px;
-  left: 6px;
+  bottom: 3px;
+  left: 3px;
   background: rgba(0,0,0,0.6);
   color: white;
-  font-size: 14px;
-  padding: 2px 6px;
-  border-radius: 8px;
-  min-width: 18px;
+  font-size: 11px;
+  padding: 1px 3px;
+  border-radius: 4px;
   text-align: center;
+  line-height: 1;
+}
+
+@media (max-width: 1024px) {
+  .tile-value {
+    font-size: 10px;
+    bottom: 2px;
+    left: 2px;
+  }
+}
+
+@media (max-width: 768px) {
+  .tile-value {
+    bottom: 1px;
+    left: 1px;
+    font-size: 7px;
+    padding: 1px 2px;
+    border-radius: 2px;
+  }
+}
+
+@media (max-width: 480px) {
+  .tile-value {
+    font-size: 6px;
+  }
+}
+
+@media (max-width: 430px) {
+  .tile-value {
+    font-size: 6px;
+    padding: 0px 1px;
+  }
 }
 
 .move-dot {
-  width: 20px;
-  height: 20px;
+  width: 14px;
+  height: 14px;
   background-color: rgba(127, 201, 127, 0.6);
   border-radius: 50%;
   pointer-events: none;
+}
+
+@media (max-width: 1024px) {
+  .move-dot {
+    width: 12px;
+    height: 12px;
+  }
+}
+
+@media (max-width: 768px) {
+  .move-dot {
+    width: 9px;
+    height: 9px;
+  }
+}
+
+@media (max-width: 480px) {
+  .move-dot {
+    width: 7px;
+    height: 7px;
+  }
+}
+
+@media (max-width: 430px) {
+  .move-dot {
+    width: 6px;
+    height: 6px;
+  }
 }
 
 .game-info {
@@ -686,6 +876,15 @@ const getPieceSymbol = (piece: ChessPiece): string => {
   border-radius: 12px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
   text-align: center;
+  min-width: 260px;
+}
+
+@media (max-width: 768px) {
+  .game-info {
+    padding: 1rem;
+    width: 100%;
+    min-width: unset;
+  }
 }
 
 .game-info h3 {
