@@ -1,26 +1,41 @@
 <template>
-    <v-app>
-        <v-card 
-        class="mx-auto stats-card"
-        subtitle="Global Game Statistics"
-        max-width="400">
-            <v-row align="center" justify="center" class="fill-height">
-                <v-col cols="auto" class="text-center content">
-                    <p>Total Explosions: {{ data.totalExplosions }}</p>
-                    <p>White Pieces Explosioned: {{ data.whiteExplosions }}</p>
-                    <p>Black Pieces Explosioned: {{ data.blackExplosions }}</p>
-                    <h3>Explosions by Piece Type:</h3>
-                    <v-list>
-                        <v-list-item v-for="item in data.numberExplodedByPiece" :key="item.pieceType">
-                            <v-list-item-content>
-                                <v-list-item-title>{{ item.pieceType }}: {{ item.count }}</v-list-item-title>
-                            </v-list-item-content>
-                        </v-list-item>
-                    </v-list>
-                </v-col>
-            </v-row>
-    </v-card>
-    </v-app>
+  <v-container fluid class="pa-4 pa-md-8">
+    <v-row justify="center">
+      <v-col cols="12" sm="8" md="5" lg="4">
+        <v-card elevation="4" class="rounded-lg">
+          <v-card-title class="text-h5 font-weight-bold">Global Game Statistics</v-card-title>
+          <v-card-text>
+            <v-table density="comfortable" class="mb-4">
+              <tbody>
+                <tr>
+                  <td class="font-weight-medium">Total Explosions</td>
+                  <td class="text-right">{{ data.totalExplosions }}</td>
+                </tr>
+                <tr>
+                  <td class="font-weight-medium">White Pieces Exploded</td>
+                  <td class="text-right">{{ data.whiteExplosions }}</td>
+                </tr>
+                <tr>
+                  <td class="font-weight-medium">Black Pieces Exploded</td>
+                  <td class="text-right">{{ data.blackExplosions }}</td>
+                </tr>
+              </tbody>
+            </v-table>
+
+            <div class="text-subtitle-1 font-weight-bold mb-2">Explosions by Piece Type</div>
+            <v-list density="compact" rounded>
+              <v-list-item v-for="item in data.numberExplodedByPiece" :key="item.pieceType">
+                <v-list-item-title>{{ item.pieceType }}</v-list-item-title>
+                <template #append>
+                  <v-chip size="small" color="error" variant="tonal">{{ item.count }}</v-chip>
+                </template>
+              </v-list-item>
+            </v-list>
+          </v-card-text>
+        </v-card>
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
 
 <script setup>
@@ -45,14 +60,5 @@ try {
 </script>
 
 <style scoped>
-.stats-card {
-  width: 100%;
-  max-width: 400px;
-}
-
-@media (max-width: 768px) {
-  .stats-card {
-    margin: 0.5rem;
-  }
-}
+/* All styling handled by Vuetify components and utility classes */
 </style>

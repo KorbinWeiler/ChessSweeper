@@ -1,10 +1,12 @@
 <template>
-  <v-app>
-    <div class="page-container">
-      <h1>Game</h1>
-      <Chessboard :moveMode="moveMode" :showBombIndicator="showBombIndicator" :bombCount="bombCount" />
-    </div>
-  </v-app>
+  <v-container fluid class="pa-4 pa-md-8">
+    <v-row justify="center">
+      <v-col cols="auto">
+        <div class="text-h4 text-md-h3 font-weight-bold text-center mb-4">Game</div>
+        <Chessboard :moveMode="moveMode" :showBombIndicator="showBombIndicator" :bombCount="bombCount" />
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
 
 <script setup lang="ts">
@@ -18,20 +20,5 @@ const bombCount = route.query.bombCount ? Number(route.query.bombCount) : 6;
 </script>
 
 <style scoped>
-.page-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding-top: 2rem;
-}
-
-@media (max-width: 768px) {
-  .page-container {
-    padding-top: 0.5rem;
-  }
-  .page-container h1 {
-    font-size: 1.5rem;
-    margin: 0.5rem 0;
-  }
-}
+/* All styling handled by Vuetify components and utility classes */
 </style>

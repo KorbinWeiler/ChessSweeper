@@ -38,7 +38,31 @@ export default defineNuxtConfig({
     },
     modules: ["vuetify-nuxt-module"],
     vuetify: {
-
+      vuetifyOptions: {
+        theme: {
+          defaultTheme: 'light',
+          themes: {
+            light: {
+              dark: false,
+              colors: {
+                primary: '#1565C0',
+                secondary: '#546E7A',
+                background: '#FAFAFA',
+                surface: '#FFFFFF',
+              },
+            },
+            dark: {
+              dark: true,
+              colors: {
+                primary: '#42A5F5',
+                secondary: '#78909C',
+                background: '#121212',
+                surface: '#1E1E1E',
+              },
+            },
+          },
+        },
+      },
     },
   runtimeConfig: {
     public: {

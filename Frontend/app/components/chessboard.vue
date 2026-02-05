@@ -1,13 +1,9 @@
 <template>
-  <v-container class="chessboard-container" fluid>
-    <v-row align="start" justify="center" class="board-row">
-      <v-col cols="12" md="auto" class="board-col">
-        <v-sheet class="chessboard" elevation="6">
-          <div 
-            v-for="(row, rowIndex) in board" 
-            :key="rowIndex" 
-            class="chess-row"
-          >
+  <v-container fluid class="pa-2 pa-md-8">
+    <v-row align="start" justify="center">
+      <v-col cols="12" md="auto" class="d-flex justify-center">
+        <v-sheet class="chessboard" elevation="6" rounded="lg" border>
+          <div v-for="(row, rowIndex) in board" :key="rowIndex" class="d-flex">
             <div
               v-for="(tile, colIndex) in row"
               :key="rowIndex + '-' + colIndex"
@@ -23,44 +19,39 @@
               @mouseenter="previewPathTo(rowIndex, colIndex)"
               @mouseleave="clearPath()"
             >
-              <div v-if="tile.piece" class="chess-piece" :class="'piece-' + tile.piece.color">
+              <span v-if="tile.piece" class="chess-piece" :class="'piece-' + tile.piece.color">
                 {{ getPieceSymbol(tile.piece) }}
-              </div>
+              </span>
 
+              <span v-if="tile.bomb && !tile.bomb.isActive" class="bomb-indicator">💣</span>
 
-              <div v-if="tile.bomb && !tile.bomb.isActive" class="bomb-indicator">💣</div>
+              <span v-if="tile.vicinityBombs > 0 && tile.piece && showBombIndicator" class="tile-value">{{ tile.vicinityBombs }}</span>
 
-              <div v-if="tile.vicinityBombs > 0 && tile.piece && showBombIndicator" class="tile-value">{{ tile.vicinityBombs }}</div>
-
-              <div v-if="isValidMove(rowIndex, colIndex) && !tile.piece" class="move-dot"></div>
+              <span v-if="isValidMove(rowIndex, colIndex) && !tile.piece" class="move-dot"></span>
             </div>
           </div>
         </v-sheet>
       </v-col>
 
-      <v-col cols="12" md="auto" class="info-col">
-        <v-card class="game-info" elevation="4">
-          <v-card-title style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
-            <div style="display:flex;align-items:center;gap:12px;">
-              <v-avatar size="36" :color="currentTurn === 'white' ? 'grey lighten-4' : 'grey darken-3'">
-          <span style="font-size:18px">{{ currentTurn === 'white' ? '⚪' : '⚫' }}</span>
-              </v-avatar>
-              <div style="line-height:1;">
-          <div style="font-weight:600">{{ currentTurn === 'white' ? 'White' : 'Black' }}'s turn</div>
-          <div v-if="gameOver" style="color:#e53e3e;font-weight:700;margin-top:4px;">Game Over — {{ winner }} wins</div>
-              </div>
+      <v-col cols="12" md="auto" class="d-flex justify-center">
+        <v-card elevation="4" rounded="lg" min-width="260" class="pa-4">
+          <v-card-title class="d-flex align-center ga-3 flex-wrap">
+            <v-avatar size="36" :color="currentTurn === 'white' ? 'grey-lighten-4' : 'grey-darken-3'">
+              <span class="text-h6">{{ currentTurn === 'white' ? '⚪' : '⚫' }}</span>
+            </v-avatar>
+            <div>
+              <div class="text-subtitle-1 font-weight-bold">{{ currentTurn === 'white' ? 'White' : 'Black' }}'s turn</div>
+              <div v-if="gameOver" class="text-error font-weight-bold mt-1">Game Over — {{ winner }} wins</div>
             </div>
-
-            <v-chip small :color="moveMode === 'slide' ? 'blue lighten-4' : 'green lighten-4'" :text-color="moveMode === 'slide' ? 'black' : 'black'">
+            <v-spacer />
+            <v-chip size="small" :color="moveMode === 'slide' ? 'blue-lighten-4' : 'green-lighten-4'" variant="tonal">
               {{ moveMode === 'slide' ? 'Slide Mode (Press R)' : 'Teleport Mode' }}
             </v-chip>
           </v-card-title>
 
-          <v-card-text style="padding-top:8px;">
-            <div style="display:flex;gap:8px;align-items:center;justify-content:flex-start;">
-              <v-btn color="primary" small @click="resetBoard">Reset</v-btn>
-            </div>
-          </v-card-text>
+          <v-card-actions class="pt-2">
+            <v-btn color="primary" size="small" variant="elevated" @click="resetBoard">Reset</v-btn>
+          </v-card-actions>
         </v-card>
       </v-col>
     </v-row>
@@ -572,188 +563,48 @@ const getPieceSymbol = (piece: ChessPiece): string => {
 </script>
 
 <style scoped>
-.chessboard-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2rem;
-  padding: 2rem;
-}
-
-.board-row {
-  width: 100%;
-}
-
-.board-col,
-.info-col {
-  display: flex;
-  justify-content: center;
-}
-
-.board-col {
-  overflow: hidden;
-}
-
-@media (max-width: 768px) {
-  .chessboard-container {
-    padding: 0.25rem;
-    gap: 0.5rem;
-  }
-  .board-col {
-    overflow-x: auto;
-  }
-  .info-col {
-    width: 100%;
-  }
-}
-
+/* ── Board & Tile grid (not achievable with Vuetify alone) ── */
 .chessboard {
   display: inline-flex;
   flex-direction: column;
-  border: 4px solid #2d3748;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-  border-radius: 8px;
   overflow: hidden;
-  max-width: 100%;
-}
-
-@media (max-width: 768px) {
-  .chessboard {
-    border: 1px solid #2d3748;
-  }
-}
-
-.chess-row {
-  display: flex;
-  flex-shrink: 0;
-  flex-grow: 0;
 }
 
 .chess-tile {
-  width: 55px !important;
-  height: 55px !important;
+  width: 55px;
+  height: 55px;
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background-color 0.15s ease, filter 0.15s ease;
   flex-shrink: 0;
-  flex-grow: 0;
 }
 
-@media (max-width: 1024px) {
-  .chess-tile {
-    width: 90px !important;
-    height: 90px !important;
-  }
-}
+.chess-tile:hover { filter: brightness(0.9); }
 
-@media (max-width: 768px) {
-  .chess-tile {
-    width: 35px !important;
-    height: 35px !important;
-  }
-}
+/* ── Tile colours ── */
+.light-tile { background-color: #f0d9b5; }
+.dark-tile  { background-color: #b58863; }
 
-@media (max-width: 480px) {
-  .chess-tile {
-    width: 32px !important;
-    height: 32px !important;
-  }
-}
+.chess-tile.selected    { background-color: #7fc97f !important; box-shadow: inset 0 0 0 3px #4a9d4a; }
+.chess-tile.valid-move  { background-color: #a8e6cf !important; }
+.chess-tile.path-tile   { background: rgba(99,179,237,.45) !important; box-shadow: inset 0 0 0 3px rgba(99,179,237,.8) !important; }
 
-@media (max-width: 430px) {
-  .chess-tile {
-    width: 50px !important;
-    height: 50px !important;
-  }
-}
-
-@media (max-width: 400px) {
-  .chess-tile {
-    width: 28px !important;
-    height: 28px !important;
-  }
-}
-
-.light-tile {
-  background-color: #f0d9b5;
-}
-
-.dark-tile {
-  background-color: #b58863;
-}
-
-.chess-tile:hover {
-  filter: brightness(0.9);
-}
-
-.chess-tile.selected {
-  background-color: #7fc97f !important;
-  box-shadow: inset 0 0 0 3px #4a9d4a;
-}
-
-.chess-tile.valid-move {
-  background-color: #a8e6cf !important;
-}
-
-.chess-tile.path-tile {
-  background: rgba(99, 179, 237, 0.45) !important;
-  box-shadow: inset 0 0 0 3px rgba(99, 179, 237, 0.8) !important;
-  outline: 2px solid rgba(99, 179, 237, 0.6);
-  outline-offset: -2px;
-}
-
+/* ── Chess pieces ── */
 .chess-piece {
   font-size: 36px;
   user-select: none;
   cursor: pointer;
   transition: transform 0.1s ease;
 }
+.chess-piece:hover { transform: scale(1.1); }
 
-@media (max-width: 1024px) {
-  .chess-piece {
-    font-size: 30px;
-  }
-}
+.piece-white { filter: drop-shadow(2px 2px 2px rgba(0,0,0,.3)); }
+.piece-black { filter: drop-shadow(2px 2px 2px rgba(255,255,255,.2)); }
 
-@media (max-width: 768px) {
-  .chess-piece {
-    font-size: 22px;
-  }
-}
-
-@media (max-width: 480px) {
-  .chess-piece {
-    font-size: 20px;
-  }
-}
-
-@media (max-width: 430px) {
-  .chess-piece {
-    font-size: 18px;
-  }
-}
-
-@media (max-width: 400px) {
-  .chess-piece {
-    font-size: 17px;
-  }
-}
-
-.chess-piece:hover {
-  transform: scale(1.1);
-}
-
-.piece-white {
-  filter: drop-shadow(2px 2px 2px rgba(0, 0, 0, 0.3));
-}
-
-.piece-black {
-  filter: drop-shadow(2px 2px 2px rgba(255, 255, 255, 0.2));
-}
-
+/* ── Overlays (bomb indicator, value badge, move dot) ── */
 .bomb-indicator {
   position: absolute;
   top: 3px;
@@ -762,155 +613,59 @@ const getPieceSymbol = (piece: ChessPiece): string => {
   color: #e53e3e;
 }
 
-@media (max-width: 1024px) {
-  .bomb-indicator {
-    font-size: 12px;
-    top: 2px;
-    right: 2px;
-  }
-}
-
-@media (max-width: 768px) {
-  .bomb-indicator {
-    top: 1px;
-    right: 1px;
-    font-size: 9px;
-  }
-}
-
-@media (max-width: 480px) {
-  .bomb-indicator {
-    font-size: 8px;
-  }
-}
-
-@media (max-width: 430px) {
-  .bomb-indicator {
-    font-size: 7px;
-  }
-}
-
 .tile-value {
   position: absolute;
   bottom: 3px;
   left: 3px;
-  background: rgba(0,0,0,0.6);
-  color: white;
+  background: rgba(0,0,0,.55);
+  color: #fff;
   font-size: 11px;
   padding: 1px 3px;
   border-radius: 4px;
-  text-align: center;
   line-height: 1;
 }
 
-@media (max-width: 1024px) {
-  .tile-value {
-    font-size: 10px;
-    bottom: 2px;
-    left: 2px;
-  }
-}
-
-@media (max-width: 768px) {
-  .tile-value {
-    bottom: 1px;
-    left: 1px;
-    font-size: 7px;
-    padding: 1px 2px;
-    border-radius: 2px;
-  }
-}
-
-@media (max-width: 480px) {
-  .tile-value {
-    font-size: 6px;
-  }
-}
-
-@media (max-width: 430px) {
-  .tile-value {
-    font-size: 6px;
-    padding: 0px 1px;
-  }
+:root .v-theme--dark .tile-value {
+  background: rgba(255,255,255,.55);
+  color: #000;
 }
 
 .move-dot {
   width: 14px;
   height: 14px;
-  background-color: rgba(127, 201, 127, 0.6);
+  background-color: rgba(127,201,127,.6);
   border-radius: 50%;
   pointer-events: none;
 }
 
+/* ── Responsive tile sizes ── */
 @media (max-width: 1024px) {
-  .move-dot {
-    width: 12px;
-    height: 12px;
-  }
+  .chess-tile  { width: 90px; height: 90px; }
+  .chess-piece { font-size: 30px; }
 }
-
 @media (max-width: 768px) {
-  .move-dot {
-    width: 9px;
-    height: 9px;
-  }
+  .chess-tile  { width: 35px; height: 35px; }
+  .chess-piece { font-size: 22px; }
+  .bomb-indicator { font-size: 9px; top: 1px; right: 1px; }
+  .tile-value { font-size: 7px; bottom: 1px; left: 1px; padding: 1px 2px; }
+  .move-dot   { width: 9px; height: 9px; }
 }
-
 @media (max-width: 480px) {
-  .move-dot {
-    width: 7px;
-    height: 7px;
-  }
+  .chess-tile  { width: 32px; height: 32px; }
+  .chess-piece { font-size: 20px; }
+  .bomb-indicator { font-size: 8px; }
+  .tile-value { font-size: 6px; }
+  .move-dot   { width: 7px; height: 7px; }
 }
-
 @media (max-width: 430px) {
-  .move-dot {
-    width: 6px;
-    height: 6px;
-  }
+  .chess-tile  { width: 50px; height: 50px; }
+  .chess-piece { font-size: 18px; }
+  .bomb-indicator { font-size: 7px; }
+  .tile-value { font-size: 6px; padding: 0 1px; }
+  .move-dot   { width: 6px; height: 6px; }
 }
-
-.game-info {
-  background: white;
-  padding: 2rem;
-  border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-  text-align: center;
-  min-width: 260px;
-}
-
-@media (max-width: 768px) {
-  .game-info {
-    padding: 1rem;
-    width: 100%;
-    min-width: unset;
-  }
-}
-
-.game-info h3 {
-  margin: 0 0 1rem 0;
-  color: #2d3748;
-  font-size: 1.5rem;
-}
-
-.reset-button {
-  margin-top: 1rem;
-  padding: 0.75rem 2rem;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-size: 1rem;
-  font-weight: bold;
-  cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.reset-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-}
-
-.reset-button:active {
-  transform: translateY(0);
+@media (max-width: 400px) {
+  .chess-tile  { width: 28px; height: 28px; }
+  .chess-piece { font-size: 17px; }
 }
 </style>

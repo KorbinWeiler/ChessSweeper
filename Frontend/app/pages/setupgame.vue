@@ -1,25 +1,28 @@
 <template>
-  <v-app>
-    <v-container class="pa-5" fluid fill-height>
-      <v-row align="center" justify="center" class="fill-height">
-        <v-col cols="auto" class="text-center">
-          <v-form>
-            <v-switch v-model="showBomb" label="Show Bomb Indicator"></v-switch>
-            <v-radio-group class="setup-radios" v-model="radios">
-                <v-radio label="Pieces Teleport" value="teleport" />
-                <v-radio label="Pieces Slide" value="slide" />
-            </v-radio-group>
-            <v-label>Number of Bombs: {{ Math.floor(bombCount) }}</v-label>
-            <v-slider v-model="bombCount" :min="6" :max="14">
-            </v-slider>
-            <v-btn @click="startGame" color="primary" large>
-                start game
-            </v-btn>
-          </v-form>
-        </v-col>
-      </v-row>
-    </v-container>
-  </v-app>
+  <v-container fluid class="fill-height pa-4">
+    <v-row align="center" justify="center" class="fill-height">
+      <v-col cols="12" sm="8" md="5" lg="4">
+        <v-card elevation="4" class="pa-6 rounded-lg">
+          <v-card-title class="text-h5 font-weight-bold text-center mb-2">Game Setup</v-card-title>
+          <v-card-text>
+            <v-form>
+              <v-switch v-model="showBomb" label="Show Bomb Indicator" color="primary" hide-details class="mb-4" />
+
+              <v-radio-group v-model="radios" label="Movement Mode" class="mb-4">
+                <v-radio label="Pieces Teleport" value="teleport" color="primary" />
+                <v-radio label="Pieces Slide" value="slide" color="primary" />
+              </v-radio-group>
+
+              <v-label class="mb-1 d-block">Number of Bombs: {{ Math.floor(bombCount) }}</v-label>
+              <v-slider v-model="bombCount" :min="6" :max="14" color="primary" thumb-label class="mb-6" />
+
+              <v-btn @click="startGame" color="primary" size="large" block variant="elevated">Start Game</v-btn>
+            </v-form>
+          </v-card-text>
+        </v-card>
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
 
 <script setup>
@@ -34,17 +37,5 @@ const startGame = () => router.push({ path: '/game', query: { moveMode: radios.v
 </script>
 
 <style scoped>
-.setup-radios input[type="radio"] {
-  -webkit-appearance: radio;
-  appearance: auto;
-  pointer-events: auto;
-}
-
-@media (max-width: 768px) {
-  .v-form {
-    width: 100%;
-    max-width: 350px;
-    padding: 0 1rem;
-  }
-}
+/* All styling handled by Vuetify components and utility classes */
 </style>
