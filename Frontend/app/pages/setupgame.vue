@@ -15,10 +15,23 @@
 
 <script setup>
 import { ref } from 'vue';
+import { useRoute } from 'vue-router';
 import chesssweeper_options from '../components/chesssweeper_options.vue';
 import Chessception from '~/components/chessception.vue';
 import shuffle_chess_options from '~/components/shuffle_chess_options.vue';
-const toggle_exlusive = ref(0);
+
+const props = defineProps({
+  game: {
+    type: Number,
+    required: true
+  }
+});
+
+const route = useRoute();
+const preset = route.query.preset ? Number(route.query.preset) : undefined;
+const initialGame = (route.query.game ? Number(route.query.game) : 0) || props.game || 0;
+
+const toggle_exlusive = ref(initialGame);
 const options =  [chesssweeper_options, Chessception, shuffle_chess_options]
 </script>
 
