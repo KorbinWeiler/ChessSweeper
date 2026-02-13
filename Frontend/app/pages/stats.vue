@@ -1,26 +1,24 @@
 <template>
-    <v-app>
-        <v-card 
-        class="mx-auto stats-card"
-        subtitle="Global Game Statistics"
-        max-width="400">
-            <v-row align="center" justify="center" class="fill-height">
-                <v-col cols="auto" class="text-center content">
-                    <p>Total Explosions: {{ data.totalExplosions }}</p>
-                    <p>White Pieces Explosioned: {{ data.whiteExplosions }}</p>
-                    <p>Black Pieces Explosioned: {{ data.blackExplosions }}</p>
-                    <h3>Explosions by Piece Type:</h3>
-                    <v-list>
-                        <v-list-item v-for="item in data.numberExplodedByPiece" :key="item.pieceType">
-                            <v-list-item-content>
-                                <v-list-item-title>{{ item.pieceType }}: {{ item.count }}</v-list-item-title>
-                            </v-list-item-content>
-                        </v-list-item>
-                    </v-list>
-                </v-col>
-            </v-row>
+    <v-card 
+    class="mx-auto stats-card"
+    subtitle="Global Game Statistics"
+    max-width="400">
+        <v-row align="center" justify="center" class="fill-height">
+            <v-col cols="auto" class="text-center content">
+                <p>Total Explosions: {{ data.totalExplosions }}</p>
+                <p>White Pieces Explosioned: {{ data.whiteExplosions }}</p>
+                <p>Black Pieces Explosioned: {{ data.blackExplosions }}</p>
+                <h3>Explosions by Piece Type:</h3>
+                <v-list>
+                    <v-list-item v-for="item in data.numberExplodedByPiece" :key="item.pieceType">
+                        <v-list-item-content>
+                            <v-list-item-title>{{ item.pieceType }}: {{ item.count }}</v-list-item-title>
+                        </v-list-item-content>
+                    </v-list-item>
+                </v-list>
+            </v-col>
+        </v-row>
     </v-card>
-    </v-app>
 </template>
 
 <script setup>

@@ -1,8 +1,7 @@
 <template>
-  <v-app>
-    <v-card 
-        class="mx-auto index-card">
-      <v-row align="center" justify="center" class="fill-height">
+  <v-card 
+      class="mx-auto index-card">
+    <v-row align="center" justify="center" class="fill-height">
         <v-col cols="auto" class="text-center content">
           <h1>The History of Chess</h1>
           <p>
@@ -31,7 +30,6 @@
         </v-col>
       </v-row>
     </v-card>
-  </v-app>
 </template>
 
 <script setup>

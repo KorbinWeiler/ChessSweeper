@@ -23,7 +23,7 @@
                 {{ getPieceSymbol(tile.piece) }}
               </div>
 
-              <div v-if="tile.bomb && !tile.bomb.isActive" class="bomb-indicator">💣</div>
+              <div v-if="shouldShowBomb(tile)" class="bomb-indicator" :class="{ 'exploded': tile.bomb && !tile.bomb.isActive }">💣</div>
 
               <div v-if="isValidMove(rowIndex, colIndex) && !tile.piece" class="move-dot"></div>
             </div>
@@ -55,45 +55,68 @@ import { ref, onMounted } from 'vue';
 import { ChessBoard } from '../../Model/ChessBoard';
 import { ChessTile } from '../../Model/ChessTile';
 import { ChessPiece } from '../../Model/ChessPiece';
-import { Pawn } from '../../Model/Pieces/Pawn';
-import { Rook } from '../../Model/Pieces/Rook';
+import {
+  initializeBoard as initBoard,
+  getTileColor as getColor,
+  isSelected as checkSelected,
+  isValidMove as checkValidMove,
+  handleTileClick as handleClick,
+  getPieceSymbol as getSymbol,
+  executeMove,
+  calculateValidMoves
+} from '../composables/classicChessLogic';
+import {
+  handleBombDetonation,
+  shouldShowBombIndicator,
+  findFirstBombOnPath
+} from '../composables/bombGameMode';
 import { Knight } from '../../Model/Pieces/Knight';
-import { Bishop } from '../../Model/Pieces/Bishop';
-import { Queen } from '../../Model/Pieces/Queen';
-import { King } from '../../Model/Pieces/King';
 
+// Props
+const props = withDefaults(defineProps<{
+  moveMode?: string;
+  showBombIndicator?: boolean;
+  bombCount?: number;
+}>(), {
+  moveMode: 'teleport',
+  showBombIndicator: false,
+  bombCount: 8
+});
+
+// State
 const chessBoard = ref<ChessBoard | null>(null);
 const board = ref<ChessTile[][]>([]);
 const selectedTile = ref<ChessTile | null>(null);
 const validMoves = ref<[number, number][]>([]);
 const currentTurn = ref<'white' | 'black'>('white');
 
+// Lifecycle
 onMounted(() => {
-  initializeBoard();
+  initBoard(chessBoard, board, selectedTile, validMoves, currentTurn, props.bombCount);
 });
 
-const initializeBoard = () => {
-  chessBoard.value = new ChessBoard();
-  board.value = chessBoard.value.board;
-  selectedTile.value = null;
-  validMoves.value = [];
-  currentTurn.value = 'white';
-};
-
+// Methods
 const resetBoard = () => {
-  initializeBoard();
+  initBoard(chessBoard, board, selectedTile, validMoves, currentTurn, props.bombCount);
 };
 
-const getTileColor = (row: number, col: number): string => {
-  return (row + col) % 2 === 0 ? 'light-tile' : 'dark-tile';
-};
+const getTileColor = (row: number, col: number): string => getColor(row, col);
 
-const isSelected = (row: number, col: number): boolean => {
-  return selectedTile.value?.x === row && selectedTile.value?.y === col;
-};
+const isSelected = (row: number, col: number): boolean => 
+  checkSelected(selectedTile, row, col);
 
-const isValidMove = (row: number, col: number): boolean => {
-  return validMoves.value.some(([x, y]: [number, number]) => x === row && y === col);
+const isValidMove = (row: number, col: number): boolean => 
+  checkValidMove(validMoves, row, col);
+
+const getPieceSymbol = (piece: ChessPiece): string => getSymbol(piece);
+
+const shouldShowBomb = (tile: ChessTile): boolean => 
+  shouldShowBombIndicator(tile, props.showBombIndicator);
+
+// Handle move completion with bomb logic
+const onMoveComplete = (tile: ChessTile) => {
+  // Apply bomb game mode logic after move
+  handleBombDetonation(tile);
 };
 
 const handleTileClick = (row: number, col: number) => {
@@ -102,104 +125,39 @@ const handleTileClick = (row: number, col: number) => {
   const clickedTile = rowArr[col];
   if (!clickedTile) return;
 
-  // If a tile is already selected and we click on a valid move
-  if (selectedTile.value && isValidMove(row, col)) {
-    movePiece(selectedTile.value!, clickedTile);
+  // Execute move if valid destination
+  if (selectedTile.value && checkValidMove(validMoves, row, col)) {
+    let destinationTile = clickedTile;
+
+    // For slide mode, check if there's a bomb along the path (except for knights)
+    if (props.moveMode === 'slide' && selectedTile.value.piece && !(selectedTile.value.piece instanceof Knight)) {
+      destinationTile = findFirstBombOnPath(
+        board.value,
+        selectedTile.value.x,
+        selectedTile.value.y,
+        clickedTile.x,
+        clickedTile.y
+      );
+    }
+
+    // Execute the move to the (possibly adjusted) destination
+    const finalTile = executeMove(selectedTile.value, destinationTile, currentTurn);
     selectedTile.value = null;
     validMoves.value = [];
+
+    // Handle bomb detonation
+    onMoveComplete(finalTile);
     return;
   }
 
-  // If clicking on a piece of the current player's color
+  // Select piece if it belongs to current player
   if (clickedTile.piece && clickedTile.piece.color === currentTurn.value) {
     selectedTile.value = clickedTile;
-    validMoves.value = calculateValidMoves(clickedTile);
+    validMoves.value = calculateValidMoves(board, clickedTile);
   } else {
     selectedTile.value = null;
     validMoves.value = [];
   }
-};
-
-const calculateValidMoves = (tile: ChessTile): [number, number][] => {
-  if (!tile.piece) return [];
-  
-  const moves = tile.piece.calculateMoves(tile.x, tile.y);
-  // Filter moves to be within board bounds and apply pawn-specific rules
-  return moves.filter(([x, y]: [number, number]) => {
-    if (x < 0 || x >= 8 || y < 0 || y >= 8) return false;
-    const rowArr = board.value[x];
-    if (!rowArr) return false;
-    const targetTile = rowArr[y];
-    if (!targetTile) return false;
-
-    const piece = tile.piece!;
-    // Pawn-specific rules: forward moves must be to empty squares; captures diagonal only
-    if (piece instanceof Pawn) {
-      const dx = x - tile.x; // change in row
-      const dy = y - tile.y; // change in col
-      // Forward move (same column)
-      if (dy === 0) {
-        // single-step
-        if (Math.abs(dx) === 1) {
-          return !targetTile.piece;
-        }
-        // two-step: ensure intermediate square and target are empty
-        if (Math.abs(dx) === 2) {
-          const step = dx > 0 ? 1 : -1;
-          const midRow = tile.x + step;
-          const midRowArr = board.value[midRow];
-          if (!midRowArr) return false;
-          const midTile = midRowArr[tile.y];
-          if (!midTile) return false;
-          return !midTile.piece && !targetTile.piece;
-        }
-        return false;
-      }
-      // Diagonal capture (one forward, one sideways)
-      if (Math.abs(dx) === 1 && Math.abs(dy) === 1) {
-        return !!targetTile.piece && targetTile.piece.color !== piece.color;
-      }
-      return false;
-    }
-
-    // Default: can't move to a tile occupied by own piece
-    return !targetTile.piece || targetTile.piece.color !== piece.color;
-  });
-};
-
-const movePiece = (fromTile: ChessTile, toTile: ChessTile) => {
-  // Move the piece
-  toTile.piece = fromTile.piece;
-  fromTile.piece = null;
-  // If the moved piece is a pawn, mark it as having moved
-  if (toTile.piece instanceof Pawn) {
-    (toTile.piece as Pawn).hasMoved = true;
-  }
-  
-  // Check if there's a bomb
-  if (toTile.bomb) {
-    const detonated = toTile.bomb.detonate();
-    if (detonated) {
-      //remove piece from toTile
-      toTile.piece = null;
-    }
-  }
-  
-  // Switch turns
-  currentTurn.value = currentTurn.value === 'white' ? 'black' : 'white';
-};
-
-const getPieceSymbol = (piece: ChessPiece): string => {
-  const isWhite = piece.color === 'white';
-  
-  if (piece instanceof King) return isWhite ? '♔' : '♚';
-  if (piece instanceof Queen) return isWhite ? '♕' : '♛';
-  if (piece instanceof Rook) return isWhite ? '♖' : '♜';
-  if (piece instanceof Bishop) return isWhite ? '♗' : '♝';
-  if (piece instanceof Knight) return isWhite ? '♘' : '♞';
-  if (piece instanceof Pawn) return isWhite ? '♙' : '♟';
-  
-  return '?';
 };
 </script>
 
@@ -284,6 +242,12 @@ const getPieceSymbol = (piece: ChessPiece): string => {
   right: 5px;
   font-size: 20px;
   animation: pulse 1s infinite;
+}
+
+.bomb-indicator.exploded {
+  animation: none;
+  opacity: 0.6;
+  filter: grayscale(50%);
 }
 
 .move-dot {

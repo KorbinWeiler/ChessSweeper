@@ -1,10 +1,8 @@
 <template>
-  <v-app>
-    <div class="page-container">
-      <h1>Game</h1>
-      <Chessboard :moveMode="moveMode" :showBombIndicator="showBombIndicator" :bombCount="bombCount" />
-    </div>
-  </v-app>
+  <div class="page-container">
+    <h1>Game</h1>
+    <Chessboard :moveMode="moveMode" :showBombIndicator="showBombIndicator" :bombCount="bombCount" />
+  </div>
 </template>
 
 <script setup lang="ts">
