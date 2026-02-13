@@ -14,7 +14,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import chesssweeper_options from '../components/chesssweeper_options.vue';
 import Chessception from '~/components/chessception.vue';
@@ -33,6 +33,13 @@ const initialGame = (route.query.game ? Number(route.query.game) : 0) || props.g
 
 const toggle_exlusive = ref(initialGame);
 const options =  [chesssweeper_options, Chessception, shuffle_chess_options]
+
+// Watch for route changes and update toggle_exlusive
+watch(() => route.query.game, (newGame) => {
+  if (newGame !== undefined) {
+    toggle_exlusive.value = Number(newGame);
+  }
+});
 </script>
 
 <style scoped>
