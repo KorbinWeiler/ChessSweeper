@@ -23,7 +23,7 @@ import shuffle_chess_options from '~/components/shuffle_chess_options.vue';
 const props = defineProps({
   game: {
     type: Number,
-    required: true
+    required: false
   }
 });
 

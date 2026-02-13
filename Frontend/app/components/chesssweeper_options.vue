@@ -14,28 +14,24 @@
     </v-form>
 </template>
 
-<script>
-// import { useRouter } from 'vue-router';
+<script setup>
+import { ref } from 'vue';
+import { useRouter } from 'vue-router';
 
-export default {
-    data() {
-        return {
-            showBomb: false,
-            radios: 'teleport',
-            bombCount: 6
+const router = useRouter();
+const showBomb = ref(false);
+const radios = ref('teleport');
+const bombCount = ref(6);
+
+function startGame() {
+    router.push({
+        path: '/game',
+        query: {
+            moveMode: radios.value,
+            showBombIndicator: showBomb.value ? 'true' : 'false',
+            bombCount: Math.floor(bombCount.value),
+            gameMode: 0
         }
-    },
-    methods: {
-        startGame() {
-            router.push({ 
-                path: '/game', 
-                query: { 
-                moveMode: this.radios,
-                showBombIndicator: this.showBomb ? 'true' : 'false', 
-                bombCount: Math.floor(this.bombCount) 
-                } 
-            })
-        }
-    }
+    });
 }
 </script>

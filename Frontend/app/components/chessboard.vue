@@ -51,7 +51,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import type { Ref } from 'vue';
+import { ref, onMounted, triggerRef } from 'vue';
 import { ChessBoard } from '../../Model/ChessBoard';
 import { ChessTile } from '../../Model/ChessTile';
 import { ChessPiece } from '../../Model/ChessPiece';
@@ -72,11 +73,21 @@ import {
 } from '../composables/bombGameMode';
 import { Knight } from '../../Model/Pieces/Knight';
 
+// MakeMove function type
+type MakeMoveFunction = (
+  board: Ref<ChessTile[][]>,
+  fromTile: ChessTile,
+  toTile: ChessTile,
+  currentTurn: Ref<'white' | 'black'>,
+  moveMode: string
+) => void;
+
 // Props
 const props = withDefaults(defineProps<{
   moveMode?: string;
   showBombIndicator?: boolean;
   bombCount?: number;
+  makeMove?: MakeMoveFunction;
 }>(), {
   moveMode: 'teleport',
   showBombIndicator: false,
@@ -113,12 +124,6 @@ const getPieceSymbol = (piece: ChessPiece): string => getSymbol(piece);
 const shouldShowBomb = (tile: ChessTile): boolean => 
   shouldShowBombIndicator(tile, props.showBombIndicator);
 
-// Handle move completion with bomb logic
-const onMoveComplete = (tile: ChessTile) => {
-  // Apply bomb game mode logic after move
-  handleBombDetonation(tile);
-};
-
 const handleTileClick = (row: number, col: number) => {
   const rowArr = board.value[row];
   if (!rowArr) return;
@@ -127,26 +132,19 @@ const handleTileClick = (row: number, col: number) => {
 
   // Execute move if valid destination
   if (selectedTile.value && checkValidMove(validMoves, row, col)) {
-    let destinationTile = clickedTile;
-
-    // For slide mode, check if there's a bomb along the path (except for knights)
-    if (props.moveMode === 'slide' && selectedTile.value.piece && !(selectedTile.value.piece instanceof Knight)) {
-      destinationTile = findFirstBombOnPath(
-        board.value,
-        selectedTile.value.x,
-        selectedTile.value.y,
-        clickedTile.x,
-        clickedTile.y
-      );
+    // Use custom makeMove function if provided
+    if (props.makeMove) {
+      props.makeMove(board, selectedTile.value, clickedTile, currentTurn, props.moveMode);
+    } else {
+      // Default behavior: simple move without game mode logic
+      executeMove(selectedTile.value, clickedTile, currentTurn);
     }
 
-    // Execute the move to the (possibly adjusted) destination
-    const finalTile = executeMove(selectedTile.value, destinationTile, currentTurn);
+    // Force Vue to detect nested changes (bomb state)
+    triggerRef(board);
+
     selectedTile.value = null;
     validMoves.value = [];
-
-    // Handle bomb detonation
-    onMoveComplete(finalTile);
     return;
   }
 
