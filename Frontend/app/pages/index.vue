@@ -4,10 +4,6 @@
         class="mx-auto index-card">
       <v-row align="center" justify="center" class="fill-height">
         <v-col cols="auto" class="text-center content">
-          <div class="button-group">
-            <v-btn to="/setupgame" color="primary" large>Start a new Game</v-btn>
-            <v-btn to="/stats" color="secondary" large class="ml-4 mt-2-mobile">View Stats</v-btn>
-          </div>
           <h1>The History of Chess</h1>
           <p>
             The game of chess has a rich history that dates back over a thousand years. The earliest known form of chess cam from the 7th century CE
