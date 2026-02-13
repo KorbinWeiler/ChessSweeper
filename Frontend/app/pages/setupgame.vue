@@ -17,7 +17,7 @@
 import { ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import chesssweeper_options from '../components/chesssweeper_options.vue';
-import Chessception from '~/components/chessception.vue';
+import Chessception from '~/components/chessception_options.vue';
 import shuffle_chess_options from '~/components/shuffle_chess_options.vue';
 
 const props = defineProps({

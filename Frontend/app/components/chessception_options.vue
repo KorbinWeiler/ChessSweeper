@@ -18,8 +18,9 @@ const dimensions = ref(1);
 
 function startGame() {
     router.push({
-        path: '/game',
+        path: '/chessception',
         query: {
+            dimensions: Math.floor(dimensions.value),
             moveMode: 'teleport',
             showBombIndicator: 'false',
             bombCount: 0,
